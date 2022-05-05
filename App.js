@@ -4,7 +4,6 @@
 //BUG  When input new number from ans, history and long history not change.
 
 
-
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import React, { Component } from 'react'
@@ -90,7 +89,7 @@ class MainApp extends Component {
 
     }
     const newAns = stack.pop()
-    console.log()
+    
     if (!this.state.first) {
       const temp = this.state.history + this.state.ans
       this.setState({ ans: newAns, history: temp, first: true, longHistory: temp })
@@ -138,10 +137,11 @@ class MainApp extends Component {
     }
     else {
       let temp = this.state.longHistory;
-      /*if(this.state.ans.length>0)
+      if(this.state.longHistory.length>0)
       {
-        temp += " = " + this.state.ans
-      }*/
+        temp +=" = " 
+        temp += this.state.ans
+      }
       return temp
     }
   }
