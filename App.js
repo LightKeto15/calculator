@@ -1,28 +1,30 @@
 //TODO -Auto size text
 //TODO -Multiple Line??
-//BUG  When back from Long history mode can't delete
 //BUG  When input new number from ans, history and long history not change.
 
 
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, TouchableOpacity, Alert, FlatList } from 'react-native';
 import React, { Component } from 'react'
-import TileNumber from './components/TileNumer';
+import TileNumber from './components/TileNumber';
 import { FontAwesome, Feather } from '@expo/vector-icons';
-
+import styles from './styles/MainStyle';
 import { Queue, Stack } from 'datastructures-js'
 class MainApp extends Component {
 
   state = {
     ans: "",
     history: "",
-    longHistory: "",
+    longHistory: [""],
     first: false,
-    isLong: false
+    isLong: false,
+    tempAns: ""
   }
   onLongHis = () => {
     this.setState({ isLong: !this.state.isLong })
+
   }
+
   onCal = () => {
     //https://www.geeksforgeeks.org/stack-set-2-infix-to-postfix/
     //https://www.geeksforgeeks.org/stack-set-4-evaluation-postfix-expression/
@@ -70,35 +72,51 @@ class MainApp extends Component {
         let v2 = stack.pop()
         switch (cut) {
           case '+':
-            stack.push(v2 + v1);
+            stack.push(String(v2 + v1));
             break;
 
           case '-':
-            stack.push(v2 - v1);
+            stack.push(String(v2 - v1));
             break;
 
           case '×':
-            stack.push(v2 * v1);
+            stack.push(String(v2 * v1));
             break;
 
           case '÷':
-            stack.push(v2 / v1);
+            stack.push(String(v2 / v1));
             break;
         }
       }
 
     }
     const newAns = stack.pop()
-    
+
     if (!this.state.first) {
-      const temp = this.state.history + this.state.ans
-      this.setState({ ans: newAns, history: temp, first: true, longHistory: temp })
+      const temp = this.state.longHistory
+      temp[this.getLongListIdx()] = this.state.history + this.state.ans + " = " + newAns
+        this.setState({ ans: newAns, history: this.state.history + this.state.ans, first: true, longHistory: temp })
     }
     else {
       let newHis = this.state.ans
+
       newHis = newHis.replace(newHis.match(/-*\d*/i)[0], '')
-      this.setState({ ans: newAns, history: this.state.ans, longHistory: this.state.longHistory + newHis })
+
+      const temp = this.state.longHistory
+      let idx = this.getLongListIdx()
+      if (newHis !== this.state.tempAns) {
+        temp.push([""])
+        idx = idx + 1
+      }
+      const tempV2 = temp[idx].split('=')[0].trimEnd()
+      temp[this.getLongListIdx()] = tempV2 + newHis + " = " + newAns
+      this.setState({ ans: newAns, history: this.state.ans, longHistory: temp })
     }
+
+    //TODO set new state
+    this.setState({ tempAns: newAns })
+
+
 
   }
   onTilePress = (str) => {
@@ -111,39 +129,70 @@ class MainApp extends Component {
         this.onCal()
       }
       else if (str !== '=' && str.length > 0) {
-        this.setState({ ans: this.state.ans + str })
+         this.setState({ ans: this.state.ans + str })
       }
     }
     //console.log(str)
   }
   onClear = () => {
+
+
+    let tempLong = this.state.longHistory
+    if (tempLong[this.getLongListIdx()].length > 0) {
+      tempLong.push([""])
+    }
     this.setState({
       ans: "",
       history: "",
-      longHistory: "",
+      longHistory: tempLong,
       first: false,
       isLong: false
     })
   }
   onDelete = () => {
     if (!this.state.isLong) {
-      if (this.state.ans.length > 0)
+      if (this.state.ans.length >0 )
         this.setState({ ans: this.state.ans.substring(0, this.state.ans.length - 1) })
     }
   }
+  getLongListIdx = () => {
+    return this.state.longHistory.length - 1
+  }
   getLongText = () => {
-    if (!this.state.isLong) {
-      return this.state.ans
-    }
-    else {
-      let temp = this.state.longHistory;
-      if(this.state.longHistory.length>0)
-      {
-        temp +=" = " 
-        temp += this.state.ans
-      }
-      return temp
-    }
+    return this.state.ans
+  }
+
+
+  getOPPanel = () => {
+    return (
+      <View style={{ flex: 15, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
+        <View style={{ flex: 9, justifyContent: 'center', alignItems: "center", alignContent: 'center' }}>
+          <Text style={styles.ans}>{this.getLongText()}</Text>
+        </View>
+        <View style={{ marginRight: 12, flex: 2, justifyContent: 'center', alignItems: ' "center"', }}>
+          <TouchableOpacity onPress={() => this.onDelete()}
+            style={styles.button}>
+            {<Feather name="delete" size={32} color="#fff" />}
+          </TouchableOpacity>
+        </View>
+      </View>);
+  }
+
+
+  getLongPanel = () => {
+    return (<View style={{ flex: 15, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
+      <FlatList data={this.state.longHistory.reverse()}
+        renderItem={({ item }) => {
+          if (item.length === 0) return null
+          return (<View style={{ marginBottom: 0 }}>
+            <TouchableOpacity onPress={this.onBack}
+              style={styles.listContainer}>
+              <Text style={[styles.textColor, { fontSize: 18 }]}>{item}</Text>
+            </TouchableOpacity>
+          </View>)
+        }}
+      />
+    </View>);
   }
   render() {
     const tileList = [['+', '-', '×', '÷'], ['7', '8', '9', 'C'], ['4', '5', '6', '='], ['1', '2', '3', '0']]
@@ -156,21 +205,8 @@ class MainApp extends Component {
               <FontAwesome name={!this.state.isLong ? "history" : "arrow-left"} size={32} color="#fff" />
             </TouchableOpacity>
           </View>
-          <View style={{ flex: 5, }}><Text style={styles.history}>{!this.state.isLong ? this.state.history : ''}</Text></View>
-          <View style={{ flex: 15, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-            <View style={{ flex: 9, justifyContent: 'center', alignItems: "center", alignContent: 'center' }}>
-              <Text style={styles.ans}>{this.getLongText()}</Text>
-            </View>
-            {!this.state.isLong ?
-              <View style={{ marginRight: 12, flex: 2, justifyContent: 'center', alignItems: ' "center"', }}>
-
-                <TouchableOpacity onPress={() => this.onDelete()}
-                  style={styles.button}>
-                  {<Feather name="delete" size={32} color="#fff" />}
-                </TouchableOpacity>
-              </View> : null
-            }
-          </View>
+          <View style={{ flex: 5, }}><Text style={styles.history}>{!this.state.isLong ? this.state.history : 'History'}</Text></View>
+          {!this.state.isLong ? this.getOPPanel() : this.getLongPanel()}
           <View style={{ flex: 5 }}></View>
         </View>
         <View style={{ flex: 7, width: '100%', flexDirection: 'column' }}>
@@ -191,29 +227,4 @@ class MainApp extends Component {
 
 export default MainApp;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    //alignItems: 'center',
-    //justifyContent: 'flex-start',
-  }, button: {
-    alignItems: 'center',
-    backgroundColor: '#242424',//'#32a856',
-    borderRadius: 5,
-    padding: 10,
-    justifyContent: 'center',
-    marginVertical: 5,
-    width: '100%',
-    height: '100%'
 
-  },
-  history: {
-    fontSize: 30,
-    marginLeft: 30
-  },
-  ans: {
-    fontSize: 40,
-    margin: 20
-  }
-});
