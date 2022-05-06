@@ -33,10 +33,14 @@ class MainApp extends Component {
     let postfix = new Queue();
     let tempVar = this.state.ans;
     let tempV1 = "";
-
+    let testNegative = false;
+    let cut = "";
     for (let index = 0; index < tempVar.length; index++) {
-      const cut = tempVar[index];
-      if (!isNaN(cut)) {
+      cut += tempVar[index];
+      if (cut === "-" && (index === 0 || isNaN(tempVar[index - 1]))) {
+        continue;
+      }
+      if (!isNaN(cut) || cut === ".") {
         tempV1 += cut;
         if (index === tempVar.length - 1) {
           postfix.enqueue(tempV1);
@@ -55,6 +59,7 @@ class MainApp extends Component {
         }
         stack.push(cut);
       }
+      cut = "";
     }
     while (!stack.isEmpty()) {
       postfix.enqueue(stack.pop());
@@ -65,10 +70,10 @@ class MainApp extends Component {
     for (let index = 0; index < len; index++) {
       const cut = postfix.dequeue();
       if (!isNaN(cut)) {
-        stack.push(parseInt(cut));
+        stack.push(parseFloat(cut));
       } else {
-        let v1 = parseInt(stack.pop());
-        let v2 = parseInt(stack.pop());
+        let v1 = parseFloat(stack.pop());
+        let v2 = parseFloat(stack.pop());
         switch (cut) {
           case "+":
             stack.push(String(v2 + v1));
