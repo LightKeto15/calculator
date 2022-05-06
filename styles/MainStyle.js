@@ -19,12 +19,13 @@ const styles = StyleSheet.create({
   },
   history: {
     fontSize: 30,
-    marginLeft: 30,
+    textAlign : "left"
   },
   ans: {
     fontSize: 40,
     margin: 20,
     flexShrink: 1,
+    flexWrap: 'wrap'
   },
   listContainer: {
     borderColor: "#b9babd",

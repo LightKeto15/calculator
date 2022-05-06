@@ -10,13 +10,17 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-navigation/native-stack": "^6.6.2",
+    "@reduxjs/toolkit": "^1.8.1",
     "datastructures-js": "^10.2.0",
     "expo": "~44.0.0",
     "expo-status-bar": "~1.2.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
-    "react-native-web": "0.17.1"
+    "react-native-web": "0.17.1",
+    "react-redux": "^8.0.1",
+    "redux": "^4.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

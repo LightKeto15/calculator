@@ -13,7 +13,7 @@ class TileLongHistory extends Component {
           onPress={() => this.onTilePress()}
           style={styles.listContainer}
         >
-          <Text style={[styles.textColor, { fontSize: 18 }]}>
+          <Text style={[styles.textColor, { fontSize: 20 }]}>
             {this.props.data[0] + " = " + this.props.data[1]}
           </Text>
         </TouchableOpacity>
