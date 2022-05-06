@@ -9,6 +9,7 @@ import { FontAwesome, Feather } from "@expo/vector-icons";
 import styles from "./styles/MainStyle";
 import { Queue, Stack } from "datastructures-js";
 import TileLongHistory from "./components/TileLongHistory";
+import { ScrollView } from "react-native-web";
 class MainApp extends Component {
   state = {
     ans: "",
@@ -158,7 +159,29 @@ class MainApp extends Component {
         });
     }
   };
-
+  getNumPad = () => {
+    const tileList = [
+      ["+", "-", "×", "÷"],
+      ["7", "8", "9", "C"],
+      ["4", "5", "6", "="],
+      ["1", "2", "3", "0"],
+    ];
+    return (
+      <View style={{ flex: 7, width: "100%", flexDirection: "column" }}>
+        {tileList.map((str) => (
+          <View key={Math.random()} style={{ flex: 1, flexDirection: "row" }}>
+            {str.map((item) => (
+              <TileNumber
+                key={Math.random()}
+                text={item}
+                onPress={this.onTilePress}
+              />
+            ))}
+          </View>
+        ))}
+      </View>
+    );
+  };
   getOPPanel = () => {
     return (
       <View
@@ -172,9 +195,11 @@ class MainApp extends Component {
         <View
           style={{
             flex: 9,
+            width : '90%',
             justifyContent: "center",
             alignItems: "center",
             alignContent: "center",
+            flexDirection: 'row'
           }}
         >
           <Text style={styles.ans}>{this.state.ans}</Text>
@@ -197,41 +222,39 @@ class MainApp extends Component {
       </View>
     );
   };
-
   getLongPanel = () => {
     return (
       <View
         style={{
-          flex: 15,
+          flex: 22,
           justifyContent: "center",
           alignItems: "center",
           flexDirection: "row",
         }}
       >
-        <FlatList
-          data={this.state.longHistory.toArray().reverse()}
-          renderItem={({ item }) => {
-            return item[0] !== "c" ? (
-              <TileLongHistory data={item} onPress={this.onLongPress} />
-            ) : null;
-          }}
-        />
+        <ScrollView>
+          <FlatList
+            contentContainerStyle={{
+              flexGrow: 1,
+            }}
+            data={this.state.longHistory.toArray().reverse()}
+            renderItem={({ item }) => {
+              return item[0] !== "c" ? (
+                <TileLongHistory data={item} onPress={this.onLongPress} />
+              ) : null;
+            }}
+          />
+        </ScrollView>
       </View>
     );
   };
   render() {
-    const tileList = [
-      ["+", "-", "×", "÷"],
-      ["7", "8", "9", "C"],
-      ["4", "5", "6", "="],
-      ["1", "2", "3", "0"],
-    ];
     return (
       <View style={styles.container}>
         <View
           style={{
             flex: 3,
-            width: "100%",
+            //width: "100%",
             backgroundColor: "#fafafa",
             flexDirection: "column",
           }}
@@ -256,19 +279,7 @@ class MainApp extends Component {
           {!this.state.isLong ? this.getOPPanel() : this.getLongPanel()}
           <View style={{ flex: 5 }}></View>
         </View>
-        <View style={{ flex: 7, width: "100%", flexDirection: "column" }}>
-          {tileList.map((str) => (
-            <View key={Math.random()} style={{ flex: 1, flexDirection: "row" }}>
-              {str.map((item) => (
-                <TileNumber
-                  key={Math.random()}
-                  text={item}
-                  onPress={this.onTilePress}
-                />
-              ))}
-            </View>
-          ))}
-        </View>
+        {!this.state.isLong ? this.getNumPad() : null}
         <StatusBar style="auto" />
       </View>
     );

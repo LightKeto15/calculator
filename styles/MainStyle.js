@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
   ans: {
     fontSize: 40,
     margin: 20,
+    flexShrink: 1,
   },
   listContainer: {
     borderColor: "#b9babd",
