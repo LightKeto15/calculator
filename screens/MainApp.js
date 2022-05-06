@@ -9,29 +9,24 @@ import TileNumber from "../components/TileNumber";
 import TileLongHistory from "../components/TileLongHistory";
 import styles from "../styles/MainStyle";
 
-class MainApp extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      ans: "",
-      history: "",
-      longHistory: new Stack(),
-      isLong: false,
-      tempAns: "",
-    };
-  }
+function MainApp(props) {
+  const [ans, setAns] = useState("");
+  const [history, setHistory] = useState("");
+  const [tempAns, setTempAns] = useState("");
+  const [isLong, setIsLong] = useState(false);
+  const [longHistory, setLongHistory] = useState(new Stack());
 
-  onLongHis = () => {
-    this.setState({ isLong: !this.state.isLong });
+  const onLongHis = () => {
+    setIsLong(!isLong);
   };
 
-  onCal = () => {
+  const onCal = () => {
     //https://www.geeksforgeeks.org/stack-set-2-infix-to-postfix/
     //https://www.geeksforgeeks.org/stack-set-4-evaluation-postfix-expression/
     const precedence = { "+": 1, "-": 1, "×": 2, "÷": 2 };
     const stack = new Stack();
     let postfix = new Queue();
-    let tempVar = this.state.ans;
+    let tempVar = ans;
     let tempV1 = "";
     let testNegative = false;
     let cut = "";
@@ -95,20 +90,20 @@ class MainApp extends Component {
     }
     const newAns = stack.pop();
 
-    let cloneTemp = this.state.longHistory.clone();
+    let cloneTemp = longHistory.clone();
 
     let peek = cloneTemp.peek();
     let peekLongHis = peek === null ? "" : peek[0];
     let peekAns = peek === null ? "" : peek[1];
 
-    let tempAns = this.state.ans;
+    let tempAns = ans;
     if (
       !cloneTemp.isEmpty() &&
       peekLongHis.length > 0 &&
-      tempAns.match(/-*\d*/i)[0] === this.state.tempAns
+      tempAns.match(/-*\d*/i)[0] === tempAns
     ) {
       cloneTemp.pop();
-      peekLongHis += tempAns.replace(this.state.tempAns, "");
+      peekLongHis += tempAns.replace(tempAns, "");
     } else {
       if (peekLongHis === "c") {
         cloneTemp.pop();
@@ -118,55 +113,47 @@ class MainApp extends Component {
     }
     cloneTemp.push([peekLongHis, newAns]);
 
-    this.setState({
-      ans: newAns,
-      history: this.state.ans,
-      tempAns: newAns,
-      longHistory: cloneTemp,
-    });
+    setAns(newAns);
+    setHistory(ans);
+    setTempAns(newAns);
+    setLongHistory(cloneTemp);
   };
-  onTilePress = (str) => {
-    if (!this.state.isLong) {
+  const onTilePress = (str) => {
+    if (!isLong) {
       if (str === "C") {
-        this.onClear();
+        onClear();
       } else if (str === "=") {
-        this.onCal();
+        onCal();
       } else if (str.length > 0) {
-        this.setState({ ans: this.state.ans + str });
+        setAns(ans + str);
       }
     }
   };
-  onClear = () => {
-    let cloneTempV2 = this.state.longHistory.clone();
+  const onClear = () => {
+    let cloneTempV2 = longHistory.clone();
     cloneTempV2.push(["c", ""]);
-    this.setState({
-      ans: "",
-      history: "",
-      longHistory: cloneTempV2,
-      isLong: false,
-      tempAns: "",
-    });
+
+    setAns("");
+    setHistory("");
+    setTempAns("");
+    setLongHistory(cloneTempV2);
+    setIsLong(false);
   };
-  onLongPress = (item) => {
-    this.setState(
-      {
-        ans: item[0],
-        history: "",
-        tempAns: "",
-      },
-      () => this.setState({ isLong: false })
-    );
+  const onLongPress = (item) => {
+    setAns(item[0]);
+    setHistory("");
+    setTempAns("");
+    setIsLong(false);
   };
 
-  onDelete = () => {
-    if (!this.state.isLong) {
-      if (this.state.ans.length > 0)
-        this.setState({
-          ans: this.state.ans.substring(0, this.state.ans.length - 1),
-        });
+  const onDelete = () => {
+    if (!isLong) {
+      if (ans.length > 0) {
+        setAns(ans.substring(0, ans.length - 1));
+      }
     }
   };
-  getLongPanel = () => {
+  const getLongPanel = () => {
     return (
       <View style={styles.container}>
         <View style={{ flex: 1, flexGrow: 3, backgroundColor: "#07a316" }}>
@@ -183,7 +170,7 @@ class MainApp extends Component {
           >
             <View style={{ flex: 1 }}></View>
             <TouchableOpacity
-              onPress={() => this.onLongHis()}
+              onPress={() => onLongHis()}
               style={[styles.button, { width: 48, height: 48 }]}
             >
               <FontAwesome name="history" size={32} color="#fff" />
@@ -210,10 +197,10 @@ class MainApp extends Component {
               contentContainerStyle={{
                 flexGrow: 1,
               }}
-              data={this.state.longHistory.toArray().reverse()}
+              data={longHistory.toArray().reverse()}
               renderItem={({ item }) => {
                 return item[0] !== "c" ? (
-                  <TileLongHistory data={item} onPress={this.onLongPress} />
+                  <TileLongHistory data={item} onPress={onLongPress} />
                 ) : null;
               }}
             />
@@ -222,7 +209,8 @@ class MainApp extends Component {
       </View>
     );
   };
-  getMainCal = () => {
+
+  const getMainCal = () => {
     const tileList = [
       ["+", "-", "×", "÷"],
       ["7", "8", "9", "C"],
@@ -245,11 +233,11 @@ class MainApp extends Component {
           >
             <View style={{ flex: 1 }}>
               <Text style={styles.history}>
-                <Text style={styles.history}>{this.state.history}</Text>
+                <Text style={styles.history}>{history}</Text>
               </Text>
             </View>
             <TouchableOpacity
-              onPress={() => this.onLongHis()}
+              onPress={() => onLongHis()}
               style={[styles.button, { width: 48, height: 48 }]}
             >
               <FontAwesome name="history" size={32} color="#fff" />
@@ -268,11 +256,11 @@ class MainApp extends Component {
           >
             <View style={{ flex: 1 }}>
               <Text style={[styles.ans, { flexWrap: "wrap", flexShrink: 1 }]}>
-                {this.state.ans}
+                {ans}
               </Text>
             </View>
             <TouchableOpacity
-              onPress={() => this.onDelete()}
+              onPress={() => onDelete()}
               style={[styles.button, { width: 48, height: 48 }]}
             >
               {<Feather name="delete" size={32} color="#fff" />}
@@ -287,7 +275,7 @@ class MainApp extends Component {
                 <TileNumber
                   key={Math.random()}
                   text={item}
-                  onPress={this.onTilePress}
+                  onPress={onTilePress}
                 />
               ))}
             </View>
@@ -296,9 +284,10 @@ class MainApp extends Component {
       </View>
     );
   };
-
-  render() {
-    return this.state.isLong ? this.getLongPanel() : this.getMainCal();
+  if (isLong) {
+    return getLongPanel();
+  } else {
+    return getMainCal();
   }
 }
 

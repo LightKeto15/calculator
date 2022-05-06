@@ -1,29 +1,27 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React, { Component } from "react";
 
-class TileNumber extends Component {
-  onTilePress = () => {
-    this.props.onPress(this.props.text);
+function TileNumber(props) {
+  const onTilePress = () => {
+    props.onPress(props.text);
   };
-  getBGColor = () => {
-    if (this.props.text === "C" || this.props.text === "=") {
+  const getBGColor = () => {
+    if (props.text === "C" || props.text === "=") {
       return "#07a316";
-    } else if (!isNaN(this.props.text)) {
+    } else if (!isNaN(props.text)) {
       return "#242424";
     } else {
       return "#006a94";
     }
   };
-  render() {
-    return (
-      <TouchableOpacity
-        onPress={() => this.onTilePress()}
-        style={[styles.button, { backgroundColor: this.getBGColor() }]}
-      >
-        <Text style={styles.text}>{this.props.text}</Text>
-      </TouchableOpacity>
-    );
-  }
+  return (
+    <TouchableOpacity
+      onPress={() => onTilePress()}
+      style={[styles.button, { backgroundColor: getBGColor() }]}
+    >
+      <Text style={styles.text}>{props.text}</Text>
+    </TouchableOpacity>
+  );
 }
 
 const styles = StyleSheet.create({
